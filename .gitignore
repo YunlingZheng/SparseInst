@@ -1,3 +1,6 @@
+
+datasets
+
 # output dir
 output
 output*
@@ -12,6 +15,7 @@ inference_test_output
 # compilation and distribution
 __pycache__
 _ext
+*.pt
 *.pyc
 *.pyd
 *.so
