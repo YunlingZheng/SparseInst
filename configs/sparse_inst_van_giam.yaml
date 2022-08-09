@@ -1,0 +1,12 @@
+_BASE_: "Base-SparseInst.yaml"
+MODEL:
+  BACKBONE:
+    FREEZE_AT: 0
+    NAME: "build_van_backbone"
+  VAN: 
+    drop_rate: 0
+    drop_path_rate: 0.2
+    depths: [2, 2, 4, 2]
+    init_cfg: [{'type':'Pretrained', 'checkpoint':'.../VAN-Segmentation/pretrained/van_b1.pth'}]
+    # norm_cfg: {'type':'SyncBN', 'requires_grad':True}
+OUTPUT_DIR: "output/sparse_inst_van_dcn_giam"
