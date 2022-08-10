@@ -5,12 +5,15 @@ from timm.models.layers import DropPath
 from mmcv.cnn.utils.weight_init import (constant_init, normal_init,
                                         trunc_normal_init)
 from torch.nn.modules.utils import _pair as to_2tuple
-from mmseg.models.builder import BACKBONES
+# from mmseg.models.builder import BACKBONES
 
 from mmcv.cnn import build_norm_layer
 from mmcv.runner import BaseModule
 import math
 import warnings
+
+from detectron2.layers import ShapeSpec, FrozenBatchNorm2d
+from detectron2.modeling import Backbone, BACKBONE_REGISTRY
 
 
 class Mlp(nn.Module):
@@ -138,8 +141,7 @@ class OverlapPatchEmbed(nn.Module):
         return x, H, W
 
 
-@BACKBONES.register_module()
-class VAN(BaseModule):
+class VAN(Backbone):
     def __init__(self,
                  in_chans=3,
                  embed_dims=[64, 128, 256, 512],
@@ -152,7 +154,7 @@ class VAN(BaseModule):
                  pretrained=None,
                  init_cfg=None,
                  norm_cfg=dict(type='SyncBN', requires_grad=True)):
-        super(VAN, self).__init__(init_cfg=init_cfg)
+        super(VAN, self).__init__()
 
         assert not (init_cfg and pretrained), \
             'init_cfg and pretrained cannot be set at the same time'
@@ -225,6 +227,13 @@ class VAN(BaseModule):
 
         return outs
 
+    def output_shape(self):
+        return {
+            name: ShapeSpec(
+                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
+            )
+            for name in self._out_features
+        }
 
 class DWConv(nn.Module):
     def __init__(self, dim=768):
@@ -234,3 +243,27 @@ class DWConv(nn.Module):
     def forward(self, x):
         x = self.dwconv(x)
         return x
+
+
+@BACKBONE_REGISTRY.register()
+def build_van_backbone(cfg, input_shape=None):
+
+    # drop_path_rate=0.2,
+    # depths=[2, 2, 4, 2],
+    # norm_cfg=dict(type='SyncBN', requires_grad=True),
+    # init_cfg=dict(type='Pretrained', checkpoint='pretrained/van_b1.pth')
+
+    drop_rate = cfg.MODEL.VAN.drop_rate
+    drop_path_rate = cfg.MODEL.VAN.drop_path_rate
+    depths = cfg.MODEL.VAN.depths
+    init_cfg = cfg.MODEL.VAN.init_cfg[0]
+    # norm_cfg = cfg.MODEL.VAN.norm_cfg
+
+    model = VAN(
+        drop_rate=drop_rate,
+        drop_path_rate=drop_path_rate,
+        depths=depths,
+        pretrained=None,
+        init_cfg=init_cfg)
+        # norm_cfg=norm_cfg)
+    return model

@@ -78,3 +78,10 @@ def add_sparse_inst_config(cfg):
     # (csp-)darknet: csp1, csp2, csp3, csp4
     cfg.MODEL.CSPNET.OUT_FEATURES = ["csp1", "csp2", "csp3", "csp4"]
 
+    # [VAN Backbone]
+    cfg.MODEL.VAN = CN()
+    cfg.MODEL.VAN.drop_rate = 0
+    cfg.MODEL.VAN.drop_path_rate = 0.2
+    cfg.MODEL.VAN.depths = [2, 2, 4, 2]
+    cfg.MODEL.VAN.init_cfg = [{'type':'Pretrained', 'checkpoint':'.../VAN-Segmentation/pretrained/van_b1.pth'}]
+    # cfg.MODEL.VAN.norm_cfg = {'type':'SyncBN', 'requires_grad':True}
