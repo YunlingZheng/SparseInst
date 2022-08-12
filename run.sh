@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1,3 python train_net.py --config-file configs/sparse_inst_van_giam.yaml --num-gpus 2

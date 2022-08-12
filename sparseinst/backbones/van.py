@@ -153,7 +153,8 @@ class VAN(Backbone):
                  linear=False,
                  pretrained=None,
                  init_cfg=None,
-                 norm_cfg=dict(type='SyncBN', requires_grad=True)):
+                 norm_cfg=dict(type='SyncBN', requires_grad=True),
+                 out_features=None):
         super(VAN, self).__init__()
 
         assert not (init_cfg and pretrained), \
@@ -193,6 +194,23 @@ class VAN(Backbone):
             setattr(self, f"block{i + 1}", block)
             setattr(self, f"norm{i + 1}", norm)
 
+        out_features_names = ["Hd4", "Hd8", "Hd16", "Hd32"]  # table 5 in VAN H/n*H/n
+        self._out_feature_strides = dict(zip(out_features_names, [4, 8, 16, 32]))
+        self._out_feature_channels = dict(zip(out_features_names,[64,128,256,512]))
+
+        if out_features is None:
+            self._out_features = out_features_names
+        else:
+            self._out_features = out_features
+
+    def output_shape(self):
+        return {
+            name: ShapeSpec(
+                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
+            )
+            for name in self._out_features
+        }
+
     def init_weights(self):
         print('init cfg', self.init_cfg)
         if self.init_cfg is None:
@@ -225,15 +243,9 @@ class VAN(Backbone):
             x = x.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
             outs.append(x)
 
+        outs = dict(zip(self._out_features, outs))
         return outs
 
-    def output_shape(self):
-        return {
-            name: ShapeSpec(
-                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
-            )
-            for name in self._out_features
-        }
 
 class DWConv(nn.Module):
     def __init__(self, dim=768):

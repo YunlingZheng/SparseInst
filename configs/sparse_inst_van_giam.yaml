@@ -1,5 +1,8 @@
 _BASE_: "Base-SparseInst.yaml"
 MODEL:
+  SPARSE_INST:
+    ENCODER:
+      IN_FEATURES: ["Hd4", "Hd8", "Hd16", "Hd32"]
   BACKBONE:
     FREEZE_AT: 0
     NAME: "build_van_backbone"
@@ -7,6 +10,13 @@ MODEL:
     drop_rate: 0
     drop_path_rate: 0.2
     depths: [2, 2, 4, 2]
-    init_cfg: [{'type':'Pretrained', 'checkpoint':'.../VAN-Segmentation/pretrained/van_b1.pth'}]
+    init_cfg: [{'type':'Pretrained', 'checkpoint':'pretrained/van_b1.pth'}]
     # norm_cfg: {'type':'SyncBN', 'requires_grad':True}
-OUTPUT_DIR: "output/sparse_inst_van_dcn_giam"
+OUTPUT_DIR: "output/sparse_inst_van_giam"
+
+# temp change
+DATASETS:
+  TRAIN: ("coco_2017_val",)
+  TEST:  ("coco_2017_val",)
+SOLVER:
+  IMS_PER_BATCH: 8
