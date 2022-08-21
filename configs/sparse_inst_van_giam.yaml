@@ -2,10 +2,10 @@ _BASE_: "Base-SparseInst.yaml"
 MODEL:
   SPARSE_INST:
     ENCODER:
-      IN_FEATURES: ["Hd4", "Hd8", "Hd16", "Hd32"]
+      IN_FEATURES: ["Hd8", "Hd16", "Hd32"]
   BACKBONE:
     FREEZE_AT: 0
-    NAME: "build_van_backbone"
+    NAME: "van_b1"
   VAN: 
     drop_rate: 0
     drop_path_rate: 0.2
@@ -14,9 +14,8 @@ MODEL:
     # norm_cfg: {'type':'SyncBN', 'requires_grad':True}
 OUTPUT_DIR: "output/sparse_inst_van_giam"
 
-# temp change
-DATASETS:
-  TRAIN: ("coco_2017_val",)
-  TEST:  ("coco_2017_val",)
 SOLVER:
-  IMS_PER_BATCH: 8
+  # IMS_PER_BATCH: 96
+  # MAX_ITER: 180000
+  BASE_LR: 0.00005
+  STEPS: (210000, 250000)

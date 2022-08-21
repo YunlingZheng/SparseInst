@@ -21,6 +21,8 @@ def rescoring_mask(scores, mask_pred, masks):
     mask_pred_ = mask_pred.float()
     return scores * ((masks * mask_pred_).sum([1, 2]) / (mask_pred_.sum([1, 2]) + 1e-6))
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 @META_ARCH_REGISTRY.register()
 class SparseInst(nn.Module):
@@ -35,6 +37,7 @@ class SparseInst(nn.Module):
         self.backbone = build_backbone(cfg)
         self.size_divisibility = self.backbone.size_divisibility
         output_shape = self.backbone.output_shape()
+        # num_para = count_parameters(self.backbone)    # count parameters of backbone
 
         # encoder & decoder
         self.encoder = build_sparse_inst_encoder(cfg, output_shape)

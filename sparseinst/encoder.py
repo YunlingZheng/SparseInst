@@ -67,7 +67,7 @@ class InstanceContextEncoder(nn.Module):
         # ppm
         self.ppm = PyramidPoolingModule(self.num_channels, self.num_channels // 4)
         # final fusion
-        self.fusion = nn.Conv2d(self.num_channels * 4, self.num_channels, 1)
+        self.fusion = nn.Conv2d(self.num_channels * 3, self.num_channels, 1)
         c2_msra_fill(self.fusion)
 
     def forward(self, features):
